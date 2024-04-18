@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import express from "express";
 
+import { router as tasks } from "./routes/task.js";
+
 // Load environment variables
 dotenv.config();
 
@@ -22,6 +24,9 @@ app.use((err, req, res, next) => {
   console.error("Error:", err);
   res.status(500).send("Internal Server Error");
 });
+
+// routers
+app.use("/api/v1/tasks", tasks);
 
 // start the server
 app.listen(port, host, () => {
