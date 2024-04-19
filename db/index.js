@@ -44,4 +44,17 @@ const createTaskTable = async (pool) => {
   }
 };
 
-export { connectToDatabase, createTaskTable };
+// create task record
+const createTaskRecord = async (pool, task) => {
+  const sql = `INSERT INTO tasks (name) VALUES (?)`;
+  try {
+    let t = task.trim().toLowerCase();
+    if (!t) return;
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+    await pool.query(sql, [t]);
+  } catch (error) {
+    console.error("Error creating task:", error);
+  }
+};
+
+export { connectToDatabase, createTaskTable, createTaskRecord };
