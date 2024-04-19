@@ -73,15 +73,31 @@ const createTaskRecord = async (task) => {
 // get task by id
 const getTaskById = async (id) => {
   const sql = `SELECT * FROM tasks WHERE id = ?`;
+
   if (!id) return;
+  id = parseInt(id);
   if (isNaN(id) || id < 1) return;
 
   try {
-    id = parseInt(id);
     const [rows] = await pool.query(sql, [id]);
     return rows[0];
   } catch (error) {
     console.error("Error getting task:", error);
+  }
+};
+
+// delete task by id
+const deleteTaskById = async (id) => {
+  const sql = `DELETE FROM tasks WHERE id = ?`;
+
+  if (!id) return;
+  id = parseInt(id);
+  if (isNaN(id) || id < 1) return;
+  try {
+    await pool.query(sql, [id]);
+    return true;
+  } catch (error) {
+    console.error("Error deleting task:", error);
   }
 };
 
@@ -91,4 +107,5 @@ export {
   createTaskTable,
   createTaskRecord,
   getTaskById,
+  deleteTaskById,
 };
