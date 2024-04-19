@@ -21,8 +21,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(500).send("Internal Server Error");
+  if (err) {
+    console.error("Error:", err);
+    res.status(500).send("Internal Server Error");
+  } else next();
 });
 
 // routers
