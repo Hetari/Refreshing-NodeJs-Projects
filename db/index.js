@@ -30,6 +30,17 @@ const connectToDatabase = async () => {
 
 const pool = await connectToDatabase();
 
+// select all
+const selectAllTasks = async () => {
+  const sql = `SELECT * FROM tasks`;
+  try {
+    const [rows] = await pool.query(sql);
+    return rows;
+  } catch (error) {
+    console.error("Error selecting tasks:", error);
+  }
+};
+
 // create task table in db
 const createTaskTable = async (pool) => {
   const sql = `
@@ -59,4 +70,4 @@ const createTaskRecord = async (task) => {
   }
 };
 
-export { connectToDatabase, createTaskTable, createTaskRecord };
+export { connectToDatabase, selectAllTasks, createTaskTable, createTaskRecord };

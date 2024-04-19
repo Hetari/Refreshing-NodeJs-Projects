@@ -1,7 +1,12 @@
-import { createTaskRecord } from "../db/index.js";
+import { selectAllTasks, createTaskRecord } from "../db/index.js";
 
-const getAllTasks = (req, res) => {
-  res.send("All items");
+const getAllTasks = async (req, res) => {
+  try {
+    const tasks = await selectAllTasks();
+    res.status(200).json({ tasks });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch tasks" });
+  }
 };
 
 const createTask = async (req, res) => {
@@ -10,7 +15,7 @@ const createTask = async (req, res) => {
     await createTaskRecord(name);
     res.status(201).json({ message: "Task created successfully" });
   } catch (error) {
-    console.error("Error creating task:", error);
+    res.status(500).json({ error: "Failed to fetch tasks" });
   }
 };
 
