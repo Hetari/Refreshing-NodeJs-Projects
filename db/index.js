@@ -19,25 +19,29 @@ const connectToDatabase = async () => {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      //   connectionLimit: 10, // Adjust as needed
+      // connectionLimit: 10, // Adjust as needed
     });
+    // await createTaskTable(pool);
     return pool;
   } catch (error) {
     throw error; // Throw error to indicate failure
   }
 };
 
-// // A simple SELECT query
-// try {
-//   const [results, fields] = await connection.query("");
+// create task table in db
+const createTaskTable = async (pool) => {
+  const sql = `
+  CREATE TABLE IF NOT EXISTS tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    completed BOOLEAN DEFAULT false
+  )`;
 
-//   // results contains rows returned by server
-//   console.log(results);
+  try {
+    await pool.query(sql);
+  } catch (error) {
+    console.error("Error creating task table:", error);
+  }
+};
 
-//   // fields contains extra meta data about results, if available
-//   console.log(fields);
-// } catch (err) {
-//   console.log(err);
-// }
-
-export { connectToDatabase };
+export { connectToDatabase, createTaskTable };

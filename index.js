@@ -3,7 +3,7 @@ import helmet from "helmet";
 import express from "express";
 
 import { router as tasks } from "./routes/taskRoutes.js";
-import { connectToDatabase } from "./db/index.js";
+import { connectToDatabase, createTaskTable } from "./db/index.js";
 
 // Load environment variables
 dotenv.config();
@@ -33,10 +33,13 @@ app.use("/api/v1/tasks", tasks);
 
 // start the server
 try {
-  await connectToDatabase();
+  const pool = await connectToDatabase();
   app.listen(port, host, () => {
     console.log(`Server started on ${host}:${port}`);
   });
+
+  // create all table in db
+  await createTaskTable(pool);
 } catch (error) {
   console.log(error);
 }
