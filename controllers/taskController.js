@@ -1,4 +1,4 @@
-import { selectAllTasks, createTaskRecord } from "../db/index.js";
+import { selectAllTasks, createTaskRecord, getTaskById } from "../db/index.js";
 
 const getAllTasks = async (req, res) => {
   try {
@@ -23,8 +23,14 @@ const updateTask = (req, res) => {
   res.send("update");
 };
 
-const getTask = (req, res) => {
-  res.send("get");
+const getTask = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const task = await getTaskById(id);
+    res.status(201).json({ task });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch tasks" });
+  }
 };
 
 const deleteTask = (req, res) => {

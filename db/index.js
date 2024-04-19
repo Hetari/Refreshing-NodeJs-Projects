@@ -70,4 +70,25 @@ const createTaskRecord = async (task) => {
   }
 };
 
-export { connectToDatabase, selectAllTasks, createTaskTable, createTaskRecord };
+// get task by id
+const getTaskById = async (id) => {
+  const sql = `SELECT * FROM tasks WHERE id = ?`;
+  if (!id) return;
+  if (isNaN(id) || id < 1) return;
+
+  try {
+    id = parseInt(id);
+    const [rows] = await pool.query(sql, [id]);
+    return rows[0];
+  } catch (error) {
+    console.error("Error getting task:", error);
+  }
+};
+
+export {
+  connectToDatabase,
+  selectAllTasks,
+  createTaskTable,
+  createTaskRecord,
+  getTaskById,
+};
