@@ -28,6 +28,8 @@ const connectToDatabase = async () => {
   }
 };
 
+const pool = await connectToDatabase();
+
 // create task table in db
 const createTaskTable = async (pool) => {
   const sql = `
@@ -45,7 +47,7 @@ const createTaskTable = async (pool) => {
 };
 
 // create task record
-const createTaskRecord = async (pool, task) => {
+const createTaskRecord = async (task) => {
   const sql = `INSERT INTO tasks (name) VALUES (?)`;
   try {
     let t = task.trim().toLowerCase();

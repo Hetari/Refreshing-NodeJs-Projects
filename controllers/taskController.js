@@ -5,9 +5,13 @@ const getAllTasks = (req, res) => {
 };
 
 const createTask = async (req, res) => {
-  const { name } = req.body;
-  await createTaskRecord(name);
-  return res.status(200).json({ message: "Task created successfully" });
+  try {
+    const { name } = req.body;
+    await createTaskRecord(name);
+    res.status(201).json({ message: "Task created successfully" });
+  } catch (error) {
+    console.error("Error creating task:", error);
+  }
 };
 
 const updateTask = (req, res) => {
