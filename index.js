@@ -2,7 +2,8 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import express from "express";
 
-import { router as tasks } from "./routes/task.js";
+import { router as tasks } from "./routes/taskRoutes.js";
+import { connectToDatabase } from "./db/index.js";
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +32,11 @@ app.use((err, req, res, next) => {
 app.use("/api/v1/tasks", tasks);
 
 // start the server
-app.listen(port, host, () => {
-  console.log(`Server started on ${host}:${port}`);
-});
+try {
+  await connectToDatabase();
+  app.listen(port, host, () => {
+    console.log(`Server started on ${host}:${port}`);
+  });
+} catch (error) {
+  console.log(error);
+}

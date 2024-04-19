@@ -11,15 +11,33 @@ const connection = await mysql.createConnection({
   database: process.env.DP_NAME,
 });
 
-// A simple SELECT query
-try {
-  const [results, fields] = await connection.query("");
+// Create the connection to the database
+const connectToDatabase = async () => {
+  try {
+    const pool = mysql.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      //   connectionLimit: 10, // Adjust as needed
+    });
+    return pool;
+  } catch (error) {
+    throw error; // Throw error to indicate failure
+  }
+};
 
-  // results contains rows returned by server
-  console.log(results);
+// // A simple SELECT query
+// try {
+//   const [results, fields] = await connection.query("");
 
-  // fields contains extra meta data about results, if available
-  console.log(fields);
-} catch (err) {
-  console.log(err);
-}
+//   // results contains rows returned by server
+//   console.log(results);
+
+//   // fields contains extra meta data about results, if available
+//   console.log(fields);
+// } catch (err) {
+//   console.log(err);
+// }
+
+export { connectToDatabase };
