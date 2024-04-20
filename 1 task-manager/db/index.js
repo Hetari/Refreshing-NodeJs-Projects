@@ -96,9 +96,30 @@ const deleteTaskById = async (id) => {
 
   try {
     const row = await pool.query(sql, [id]);
-    return row.effectedRows == 1;
+    return row[0].affectedRows == 1;
   } catch (error) {
     console.error("Error deleting task:", error);
+    return false;
+  }
+};
+
+const updateTaskById = async (id, name) => {
+  const sql = `UPDATE tasks SET name = ? WHERE id = ?`;
+
+  if (!id) return;
+  id = parseInt(id);
+  if (isNaN(id) || id < 1) return;
+
+  if (!name || name.length < 3) return;
+  name = name.trim().toLowerCase();
+  name = name.charAt(0).toUpperCase() + name.slice(1);
+
+  try {
+    const row = await pool.query(sql, [name, id]);
+
+    return row[0].affectedRows == 1;
+  } catch (error) {
+    console.error("Error updating task:", error);
     return false;
   }
 };
@@ -110,4 +131,5 @@ export {
   createTaskRecord,
   getTaskById,
   deleteTaskById,
+  updateTaskById,
 };

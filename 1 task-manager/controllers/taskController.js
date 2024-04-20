@@ -3,14 +3,18 @@ import {
   createTaskRecord,
   getTaskById,
   deleteTaskById,
+  updateTaskById,
 } from "../db/index.js";
+
+// TODO:
+// [ ] Add error to all res
 
 const getAllTasks = async (req, res) => {
   try {
     const tasks = await selectAllTasks();
-    res.status(200).json({ tasks });
+    return res.status(200).json({ tasks });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch tasks" });
+    return res.status(500).json({ message: "Failed to fetch tasks" });
   }
 };
 
@@ -18,23 +22,22 @@ const createTask = async (req, res) => {
   try {
     const { name } = req.body;
     await createTaskRecord(name);
-    res.status(201).json({ message: "Task created successfully" });
+    return res.status(201).json({ message: "Task created successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch tasks" });
+    return res.status(500).json({ message: "Failed to fetch tasks" });
   }
-};
-
-const updateTask = (req, res) => {
-  res.send("update");
 };
 
 const getTask = async (req, res) => {
   try {
     const id = req.params.id;
     const task = await getTaskById(id);
-    res.status(201).json({ task });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    return res.status(201).json({ task });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch tasks" });
+    return res.status(500).json({ message: "Failed to fetch tasks" });
   }
 };
 
@@ -44,12 +47,36 @@ const deleteTask = async (req, res) => {
     const deleted = await deleteTaskById(id);
 
     if (deleted) {
-      res.status(201).json({ message: "Task deleted successfully" });
+      return res.status(201).json({ message: "Task deleted successfully" });
     } else {
-      res.status(404).json({ error: "Task not found" });
+      return res.status(404).json({ message: "Task not found" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch tasks" });
+    return res.status(500).json({ message: "Failed to fetch tasks" });
+  }
+};
+
+const updateTask = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const task = await getTaskById(id);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    const { name } = req.body;
+
+    const updated = await updateTaskById(id, name);
+
+    if (!updated) {
+      console.log("id: ", id);
+      console.log("name: ", name);
+
+      return res.status(500).json({ message: "Failed to update task" });
+    }
+    return res.status(201).json({ message: "Task updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch tasks" });
   }
 };
 
