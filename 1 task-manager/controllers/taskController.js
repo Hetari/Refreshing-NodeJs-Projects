@@ -69,9 +69,6 @@ const updateTask = async (req, res) => {
     const updated = await updateTaskById(id, name);
 
     if (!updated) {
-      console.log("id: ", id);
-      console.log("name: ", name);
-
       return res.status(500).json({ message: "Failed to update task" });
     }
     return res.status(201).json({ message: "Task updated successfully" });
