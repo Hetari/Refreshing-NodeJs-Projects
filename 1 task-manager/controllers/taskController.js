@@ -38,11 +38,16 @@ const getTask = async (req, res) => {
   }
 };
 
-const deleteTask = (req, res) => {
+const deleteTask = async (req, res) => {
   try {
-    const id = req.params.id;
-    deleteTaskById(id);
-    res.status(201).json({ message: "Task deleted successfully" });
+    const { id } = req.params;
+    const deleted = await deleteTaskById(id);
+
+    if (deleted) {
+      res.status(201).json({ message: "Task deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Task not found" });
+    }
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch tasks" });
   }

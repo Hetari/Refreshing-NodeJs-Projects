@@ -93,11 +93,13 @@ const deleteTaskById = async (id) => {
   if (!id) return;
   id = parseInt(id);
   if (isNaN(id) || id < 1) return;
+
   try {
-    await pool.query(sql, [id]);
-    return true;
+    const row = await pool.query(sql, [id]);
+    return row.effectedRows == 1;
   } catch (error) {
     console.error("Error deleting task:", error);
+    return false;
   }
 };
 
