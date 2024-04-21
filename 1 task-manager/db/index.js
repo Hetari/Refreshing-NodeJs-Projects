@@ -1,15 +1,7 @@
-import mysql from "mysql2/promise";
-import dotenv from "dotenv";
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
 
 dotenv.config();
-
-// Create the connection to database
-const connection = await mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DP_PASSWORD,
-  database: process.env.DP_NAME,
-});
 
 // Create the connection to the database
 const connectToDatabase = async () => {
@@ -37,7 +29,7 @@ const selectAllTasks = async () => {
     const [rows] = await pool.query(sql);
     return rows;
   } catch (error) {
-    console.error("Error selecting tasks:", error);
+    console.error('Error selecting tasks:', error);
   }
 };
 
@@ -53,7 +45,7 @@ const createTaskTable = async (pool) => {
   try {
     await pool.query(sql);
   } catch (error) {
-    console.error("Error creating task table:", error);
+    console.error('Error creating task table:', error);
   }
 };
 
@@ -66,7 +58,7 @@ const createTaskRecord = async (task) => {
     t = t.charAt(0).toUpperCase() + t.slice(1);
     await pool.query(sql, [t]);
   } catch (error) {
-    console.error("Error creating task:", error);
+    console.error('Error creating task:', error);
   }
 };
 
@@ -82,7 +74,7 @@ const getTaskById = async (id) => {
     const [rows] = await pool.query(sql, [id]);
     return rows[0];
   } catch (error) {
-    console.error("Error getting task:", error);
+    console.error('Error getting task:', error);
   }
 };
 
@@ -98,7 +90,7 @@ const deleteTaskById = async (id) => {
     const row = await pool.query(sql, [id]);
     return row[0].affectedRows == 1;
   } catch (error) {
-    console.error("Error deleting task:", error);
+    console.error('Error deleting task:', error);
     return false;
   }
 };
@@ -119,7 +111,7 @@ const updateTaskById = async (id, name) => {
 
     return row[0].affectedRows == 1;
   } catch (error) {
-    console.error("Error updating task:", error);
+    console.error('Error updating task:', error);
     return false;
   }
 };
