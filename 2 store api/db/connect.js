@@ -1,6 +1,11 @@
 // import mysql from 'mysql2';
+import { readFile } from 'fs/promises';
+
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+
+const filePath = new URL('../products.json', import.meta.url);
+const products = JSON.parse(await readFile(filePath));
 
 dotenv.config();
 
@@ -22,13 +27,14 @@ const connectToDatabase = async () => {
 };
 
 const createProductTable = async (connection) => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS products (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      price DECIMAL(10, 2) NOT NULL,
-      featured BOOLEAN DEFAULT false,
-      company VARCHAR(255) NOT NULL
+  const sql = `CREATE TABLE IF NOT EXISTS products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  featured BOOLEAN DEFAULT false,
+  rating smallint NOT NULL DEFAULT 0,
+  company ENUM('marcos', 'liddy', 'ikea', 'caressa') NOT NULL DEFAULT 'marcos',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
   try {
@@ -38,4 +44,13 @@ const createProductTable = async (connection) => {
   }
 };
 
-export { connectToDatabase, createProductTable };
+const productSeed = async (connection) => {
+  try {
+    products.forEach(async (product) => {
+      await connection.query('INSERT INTO products SET ?', product);
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+export { connectToDatabase, createProductTable, productSeed };
