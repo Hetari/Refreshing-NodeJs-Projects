@@ -1,13 +1,14 @@
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import express from 'express';
+import 'express-async-errors';
 
 import { productsRouter } from './routes/products.js';
 
 import { errorHandlerMiddleware } from './middleware/error-handler.js';
 import { notFound } from './middleware/not-found.js';
 import { connectToDatabase, createProductTable } from './db/connect.js';
-import { asyncWrapper } from './middleware/async.js';
+
 dotenv.config();
 
 const port = process.env.APP_PORT || 3000;
