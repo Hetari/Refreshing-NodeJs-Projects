@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import { connect } from 'http2';
 
 const filePath = new URL('../products.json', import.meta.url);
 const products = JSON.parse(await readFile(filePath));

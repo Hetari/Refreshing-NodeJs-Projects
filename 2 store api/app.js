@@ -2,10 +2,12 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import express from 'express';
 
+import { productsRouter } from './routes/products.js';
+
 import { errorHandlerMiddleware } from './middleware/error-handler.js';
 import { notFound } from './middleware/not-found.js';
 import { connectToDatabase, createProductTable } from './db/connect.js';
-
+import { asyncWrapper } from './middleware/async.js';
 dotenv.config();
 
 const port = process.env.APP_PORT || 3000;
@@ -17,9 +19,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/api/v1/product', (req, res) => {
-  return res.status(200).json({ msg: 'done' });
-});
+app.use('/api/v1/products', productsRouter);
 
 app.use(errorHandlerMiddleware);
 app.use(notFound);
