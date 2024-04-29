@@ -7,6 +7,7 @@ import {
 const productsRouter = Router();
 
 productsRouter.route('/').get(getAllProducts);
+
 productsRouter.route('/static').get(getAllProductsStatic);
 
 export { productsRouter };

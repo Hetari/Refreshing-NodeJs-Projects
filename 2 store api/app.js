@@ -33,7 +33,7 @@ try {
   });
 
   // create product table
-  createProductTable(pool);
+  // createProductTable(pool);
 } catch (error) {
   console.log('error', error);
 }

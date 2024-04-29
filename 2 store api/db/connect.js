@@ -75,37 +75,75 @@ const allProducts = async (connection) => {
   }
 };
 
-const getProductById = async (connection, id) => {
-  if (!id || typeof id !== 'string' || isNaN(id)) {
-    throw new Error('Id should be a string');
+const getProduct = async (connection, options) => {
+  // Validate options
+  if (!options || typeof options !== 'object') {
+    throw new Error('Options should be an object');
   }
 
-  const sql = `SELECT * FROM products WHERE id = ?`;
+  // Determine SQL query based on provided options
+  let sql = 'SELECT * FROM products WHERE ';
+  const params = [];
+
+  // if only id is provided
+  if (options.id !== undefined) {
+    if (typeof options.id !== 'string' || isNaN(options.id)) {
+      throw new Error('Id should be a string');
+    }
+    sql += 'id = ?';
+    params.push(options.id);
+  }
+
+  // if only company and featured are provided
+  else if (options.company !== undefined && options.featured !== undefined) {
+    if (typeof options.company !== 'string') {
+      throw new Error('Company should be a string');
+    }
+
+    // if featured is not a boolean or not a number [0 or 1]
+    if (
+      isNaN(options.featured) ||
+      (typeof options.featured === 'number' &&
+        ![1, 0].includes(options.featured))
+    ) {
+      throw new Error('Featured should be a boolean or an integer (0 or 1)');
+    }
+
+    sql += 'company = ? AND featured = ?';
+    params.push(options.company, options.featured);
+  }
+
+  // if only company is provided
+  else if (options.company !== undefined) {
+    if (typeof options.company !== 'string') {
+      throw new Error('Company should be a string');
+    }
+    sql += 'company = ?';
+    params.push(options.company);
+  }
+
+  // if only featured is provided
+  else if (options.featured !== undefined) {
+    if (typeof options.featured !== 'boolean') {
+      throw new Error('Featured should be a boolean');
+    }
+    sql += 'featured = ?';
+    params.push(options.featured);
+  }
+
+  // if no options are provided
+  else {
+    throw new Error(
+      'Please provide either id, company, or featured in options'
+    );
+  }
+
   try {
-    const rows = await connection.query(sql, [id]);
+    const rows = await connection.query(sql, params);
     return rows;
   } catch (error) {
     throw error;
   }
 };
 
-const getProductByCompany = async (connection, company) => {
-  if (!company || typeof company !== 'string') {
-    throw new Error('Company should be a string');
-  }
-  const sql = `SELECT * FROM products WHERE company = ?`;
-  try {
-    const rows = await connection.query(sql, [company]);
-    return rows;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export {
-  connectToDatabase,
-  createProductTable,
-  allProducts,
-  getProductById,
-  getProductByCompany,
-};
+export { connectToDatabase, createProductTable, allProducts, getProduct };
