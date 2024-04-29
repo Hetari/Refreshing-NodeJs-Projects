@@ -40,6 +40,18 @@ const createProductTable = async (connection) => {
   `;
   try {
     await connection.query(sql);
+    deleteProductTable(connection);
+    productSeed(connection);
+    process.exit(0);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteProductTable = async (connection) => {
+  const sql = `DELETE FROM products`;
+  try {
+    await connection.query(sql);
   } catch (error) {
     throw error;
   }
@@ -54,4 +66,15 @@ const productSeed = async (connection) => {
     throw error;
   }
 };
-export { connectToDatabase, createProductTable, productSeed };
+
+const allProducts = async (connection) => {
+  const sql = `SELECT * FROM products`;
+  try {
+    const [rows] = await connection.query(sql);
+    return rows;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export { connectToDatabase, createProductTable, productSeed, allProducts };
