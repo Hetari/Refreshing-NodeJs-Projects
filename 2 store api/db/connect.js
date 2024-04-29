@@ -3,7 +3,6 @@ import { readFile } from 'fs/promises';
 
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
-import { connect } from 'http2';
 
 const filePath = new URL('../products.json', import.meta.url);
 const products = JSON.parse(await readFile(filePath));
@@ -42,7 +41,6 @@ const createProductTable = async (connection) => {
     await connection.query(sql);
     deleteProductTable(connection);
     productSeed(connection);
-    process.exit(0);
   } catch (error) {
     throw error;
   }
@@ -77,4 +75,37 @@ const allProducts = async (connection) => {
   }
 };
 
-export { connectToDatabase, createProductTable, productSeed, allProducts };
+const getProductById = async (connection, id) => {
+  if (!id || typeof id !== 'string' || isNaN(id)) {
+    throw new Error('Id should be a string');
+  }
+
+  const sql = `SELECT * FROM products WHERE id = ?`;
+  try {
+    const rows = await connection.query(sql, [id]);
+    return rows;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getProductByCompany = async (connection, company) => {
+  if (!company || typeof company !== 'string') {
+    throw new Error('Company should be a string');
+  }
+  const sql = `SELECT * FROM products WHERE company = ?`;
+  try {
+    const rows = await connection.query(sql, [company]);
+    return rows;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export {
+  connectToDatabase,
+  createProductTable,
+  allProducts,
+  getProductById,
+  getProductByCompany,
+};
