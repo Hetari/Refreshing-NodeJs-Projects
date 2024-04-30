@@ -1,8 +1,9 @@
-// import mysql from 'mysql2';
 import { readFile } from 'fs/promises';
 
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+
+import { isBool } from '../functions/index.js';
 
 const filePath = new URL('../products.json', import.meta.url);
 const products = JSON.parse(await readFile(filePath));
@@ -81,65 +82,57 @@ const getProduct = async (connection, options) => {
     throw new Error('Options should be an object');
   }
 
-  // Determine SQL query based on provided options
   let sql = 'SELECT * FROM products WHERE ';
-  const params = [];
+  const params = {};
 
-  // if only id is provided
   if (options.id !== undefined) {
-    if (typeof options.id !== 'string' || isNaN(options.id)) {
+    if (typeof options.id !== 'string' || isNaN(options.id))
       throw new Error('Id should be a string');
-    }
-    sql += 'id = ?';
-    params.push(options.id);
+    params.id = options.id;
   }
 
-  // if only company and featured are provided
-  else if (options.company !== undefined && options.featured !== undefined) {
-    if (typeof options.company !== 'string') {
-      throw new Error('Company should be a string');
-    }
+  if (options.name !== undefined) {
+    if (typeof options.name !== 'string')
+      throw new Error('Id should be a string');
 
-    // if featured is not a boolean or not a number [0 or 1]
-    if (
-      isNaN(options.featured) ||
-      (typeof options.featured === 'number' &&
-        ![1, 0].includes(options.featured))
-    ) {
+    params.name = options.name;
+  }
+
+  if (options.company !== undefined) {
+    if (typeof options.company !== 'string')
+      throw new Error('Company should be a string');
+
+    params.company = options.company;
+  }
+
+  if (options.featured !== undefined) {
+    if (!isBool(options.featured))
       throw new Error('Featured should be a boolean or an integer (0 or 1)');
+
+    params.featured = options.featured;
+  }
+
+  if (Object.keys(params).length === 0) {
+    throw new Error('No options provided');
+  }
+
+  for (let key in params) {
+    if (params.hasOwnProperty(key)) {
+      if (key === 'name') {
+        sql += `${key} LIKE ? AND `;
+      } else {
+        sql += `${key} = ? AND `;
+      }
     }
-
-    sql += 'company = ? AND featured = ?';
-    params.push(options.company, options.featured);
   }
 
-  // if only company is provided
-  else if (options.company !== undefined) {
-    if (typeof options.company !== 'string') {
-      throw new Error('Company should be a string');
-    }
-    sql += 'company = ?';
-    params.push(options.company);
-  }
-
-  // if only featured is provided
-  else if (options.featured !== undefined) {
-    if (typeof options.featured !== 'boolean') {
-      throw new Error('Featured should be a boolean');
-    }
-    sql += 'featured = ?';
-    params.push(options.featured);
-  }
-
-  // if no options are provided
-  else {
-    throw new Error(
-      'Please provide either id, company, or featured in options'
-    );
-  }
+  sql = sql.slice(0, -4);
+  const newParams = Object.entries(params).map(([key, value]) => {
+    return key === 'name' ? `%${value}%` : value;
+  });
 
   try {
-    const rows = await connection.query(sql, params);
+    const rows = await connection.query(sql, newParams);
     return rows;
   } catch (error) {
     throw error;
