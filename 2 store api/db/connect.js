@@ -4,6 +4,7 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 import { isBool } from '../functions/index.js';
+import { log } from 'console';
 
 const filePath = new URL('../products.json', import.meta.url);
 const products = JSON.parse(await readFile(filePath));
@@ -66,10 +67,38 @@ const productSeed = async (connection) => {
   }
 };
 
-const allProducts = async (connection) => {
-  const sql = `SELECT * FROM products`;
+const allProducts = async (connection, limit = null, sortBy = []) => {
+  let sql = `SELECT * FROM products`;
+  const params = [];
+
+  if (sortBy.length > 0) {
+    sql += ' ORDER BY ';
+
+    for (let i = 0; i < sortBy.length; i++) {
+      let sortOrder = sortBy[i].startsWith('-') ? 'DESC' : 'ASC';
+      let sortByField =
+        sortOrder === 'DESC' ? sortBy[i].substring(1) : sortBy[i];
+
+      // Validate sortByField to prevent SQL injection
+      const validSortFields = ['price', 'name', 'created_at', 'name'];
+      if (!validSortFields.includes(sortByField)) {
+        throw new Error('Invalid sort field');
+      }
+
+      sql += `${sortByField} ${sortOrder},`;
+    }
+
+    sql = sql.slice(0, -1);
+    console.log(sql);
+  }
+
+  if (limit) {
+    sql += ' LIMIT ?';
+    params.push(limit);
+  }
+
   try {
-    const [rows] = await connection.query(sql);
+    const [rows] = await connection.query(sql, params);
     return rows;
   } catch (error) {
     throw error;
