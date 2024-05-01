@@ -4,7 +4,6 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 import { isBool } from '../functions/index.js';
-import { log } from 'console';
 
 const filePath = new URL('../products.json', import.meta.url);
 const products = JSON.parse(await readFile(filePath));
@@ -89,7 +88,6 @@ const allProducts = async (connection, limit = null, sortBy = []) => {
     }
 
     sql = sql.slice(0, -1);
-    console.log(sql);
   }
 
   if (limit) {

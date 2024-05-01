@@ -10,7 +10,11 @@ const getAllProductsStatic = async (req, res) => {
     limit = parseInt(limit);
   }
 
-  const products = await allProducts(pool2, limit, orderBy.split(','));
+  if (typeof orderBy === 'string') {
+    orderBy = orderBy.split(',');
+  }
+
+  const products = await allProducts(pool2, limit, orderBy);
   return res.status(200).json({ length: products.length, products });
 };
 
@@ -27,7 +31,9 @@ const getAllProducts = async (req, res) => {
       .status(200)
       .json({ len: product[0].length, product: product[0] });
   } else {
-    throw new Error('Invalid request, please provide id, company or featured');
+    throw new Error(
+      'Invalid request, please provide id, company name, featured state, or product name'
+    );
   }
 };
 
