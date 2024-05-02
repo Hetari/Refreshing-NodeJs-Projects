@@ -1,17 +1,17 @@
 import { readFile } from 'fs/promises';
 
+// import third-party modules
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
-import { isBool } from '../functions/index.js';
+// import my modules
+import { isBool, sortingBy } from '../functions/index.js';
 
-const filePath = new URL('../products.json', import.meta.url);
-const products = JSON.parse(await readFile(filePath));
-
-dotenv.config();
-
-// Create the connection to the database
 const connectToDatabase = async () => {
+  // Load environment variables
+  dotenv.config();
+
+  // The MySQL pool that we'll use for our database connection.
   const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -57,6 +57,10 @@ const deleteProductTable = async (connection) => {
 };
 
 const productSeed = async (connection) => {
+  // reading all products
+  const filePath = new URL('../products.json', import.meta.url);
+  const products = JSON.parse(await readFile(filePath));
+
   try {
     products.forEach(async (product) => {
       await connection.query('INSERT INTO products SET ?', product);
@@ -66,34 +70,24 @@ const productSeed = async (connection) => {
   }
 };
 
-const allProducts = async (connection, limit = null, sortBy = []) => {
+const allProducts = async (
+  connection,
+  page = 1,
+  pageSize = 10,
+  sortBy = []
+) => {
   let sql = `SELECT * FROM products`;
   const params = [];
 
   if (sortBy.length > 0) {
-    sql += ' ORDER BY ';
-
-    for (let i = 0; i < sortBy.length; i++) {
-      let sortOrder = sortBy[i].startsWith('-') ? 'DESC' : 'ASC';
-      let sortByField =
-        sortOrder === 'DESC' ? sortBy[i].substring(1) : sortBy[i];
-
-      // Validate sortByField to prevent SQL injection
-      const validSortFields = ['price', 'name', 'created_at', 'name'];
-      if (!validSortFields.includes(sortByField)) {
-        throw new Error('Invalid sort field');
-      }
-
-      sql += `${sortByField} ${sortOrder},`;
-    }
-
-    sql = sql.slice(0, -1);
+    sql = sortingBy(sql, sortBy);
   }
 
-  if (limit) {
-    sql += ' LIMIT ?';
-    params.push(limit);
-  }
+  // Calculate the offset based on the page number and page size
+  const offset = (page - 1) * pageSize;
+
+  sql += ` LIMIT ?, ?`;
+  params.push(offset, pageSize);
 
   try {
     const [rows] = await connection.query(sql, params);

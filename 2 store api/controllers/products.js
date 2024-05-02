@@ -4,17 +4,34 @@ import { isNumber } from '../functions/index.js';
 const pool2 = await connectToDatabase();
 
 const getAllProductsStatic = async (req, res) => {
-  let { limit, orderBy } = req.query;
+  let { page, pageSize, orderBy } = req.query;
 
-  if (!isNumber(limit) && typeof limit === 'string') {
-    limit = parseInt(limit);
+  if (!isNumber(page) && typeof page === 'string') {
+    page = parseInt(page);
+  }
+
+  if (!isNumber(pageSize) && typeof pageSize === 'string') {
+    pageSize = parseInt(pageSize);
   }
 
   if (typeof orderBy === 'string') {
     orderBy = orderBy.split(',');
   }
 
-  const products = await allProducts(pool2, limit, orderBy);
+  // By default, it is already sorting by id,
+  // but if the user specifies a sort option,
+  // we will add id by default cuz we want it deterministically
+  if (
+    typeof orderBy === 'string' &&
+    !orderBy.includes('id') &&
+    !orderBy.includes('-id')
+  ) {
+    orderBy += ['id'];
+  } else if (typeof orderBy === 'undefined') {
+    orderBy = ['id'];
+  }
+
+  const products = await allProducts(pool2, page, pageSize, orderBy);
   return res.status(200).json({ length: products.length, products });
 };
 
