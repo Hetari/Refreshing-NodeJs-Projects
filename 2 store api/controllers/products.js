@@ -22,14 +22,19 @@ const getAllProductsStatic = async (req, res) => {
   // but if the user specifies a sort option,
   // we will add id by default cuz we want it deterministically
   if (
+    // so if the user specifies a sort options, an there is no id in it:
     typeof orderBy === 'string' &&
     !orderBy.includes('id') &&
     !orderBy.includes('-id')
   ) {
     orderBy += ['id'];
-  } else if (typeof orderBy === 'undefined') {
-    orderBy = ['id'];
   }
+
+  // TODO: Deciding to add this or remove it
+  // if the user doesn't specify any sort option, we will add it
+  // else if (typeof orderBy === 'undefined') {
+  //   orderBy = ['id'];
+  // }
 
   const products = await allProducts(pool2, page, pageSize, orderBy);
   return res.status(200).json({ length: products.length, products });

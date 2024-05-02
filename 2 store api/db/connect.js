@@ -5,7 +5,7 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 // import my modules
-import { isBool, sortingBy } from '../functions/index.js';
+import { sortingBy, validateOptions } from '../functions/index.js';
 
 const connectToDatabase = async () => {
   // Load environment variables
@@ -98,44 +98,9 @@ const allProducts = async (
 };
 
 const getProduct = async (connection, options) => {
-  // Validate options
-  if (!options || typeof options !== 'object') {
-    throw new Error('Options should be an object');
-  }
-
+  // Validate options for WHERE query
+  const params = validateOptions(options);
   let sql = 'SELECT * FROM products WHERE ';
-  const params = {};
-
-  if (options.id !== undefined) {
-    if (typeof options.id !== 'string' || isNaN(options.id))
-      throw new Error('Id should be a string');
-    params.id = options.id;
-  }
-
-  if (options.name !== undefined) {
-    if (typeof options.name !== 'string')
-      throw new Error('Id should be a string');
-
-    params.name = options.name;
-  }
-
-  if (options.company !== undefined) {
-    if (typeof options.company !== 'string')
-      throw new Error('Company should be a string');
-
-    params.company = options.company;
-  }
-
-  if (options.featured !== undefined) {
-    if (!isBool(options.featured))
-      throw new Error('Featured should be a boolean or an integer (0 or 1)');
-
-    params.featured = options.featured;
-  }
-
-  if (Object.keys(params).length === 0) {
-    throw new Error('No options provided');
-  }
 
   for (let key in params) {
     if (params.hasOwnProperty(key)) {

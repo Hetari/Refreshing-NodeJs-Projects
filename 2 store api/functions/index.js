@@ -34,4 +34,45 @@ const sortingBy = (sql, sortBy) => {
   return sql;
 };
 
-export { isBool, isNumber, sortingBy };
+const validateOptions = (options) => {
+  if (!options || typeof options !== 'object') {
+    throw new Error('Options should be an object');
+  }
+
+  if (Object.keys(params).length === 0) {
+    throw new Error('No options provided');
+  }
+
+  const params = {};
+
+  if (options.id !== undefined) {
+    if (typeof options.id !== 'string' || isNaN(options.id))
+      throw new Error('Id should be a string');
+    params.id = options.id;
+  }
+
+  if (options.name !== undefined) {
+    if (typeof options.name !== 'string')
+      throw new Error('name should be a string');
+
+    params.name = options.name;
+  }
+
+  if (options.company !== undefined) {
+    if (typeof options.company !== 'string')
+      throw new Error('Company should be a string');
+
+    params.company = options.company;
+  }
+
+  if (options.featured !== undefined) {
+    if (!isBool(options.featured))
+      throw new Error('Featured should be a boolean or an integer (0 or 1)');
+
+    params.featured = options.featured;
+  }
+
+  return params;
+};
+
+export { isBool, isNumber, sortingBy, validateOptions };
