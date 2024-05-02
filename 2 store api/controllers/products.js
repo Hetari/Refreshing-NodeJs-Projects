@@ -4,8 +4,20 @@ import { isNumber } from '../functions/index.js';
 const pool2 = await connectToDatabase();
 
 const getAllProducts = async (req, res) => {
-  let { page, limit, fields, orderBy } = req.query;
+  let { page, limit, fields, numericFilter, orderBy } = req.query;
 
+  // numericFilter validation
+  let filter = '';
+
+  if (numericFilter) {
+    filter = numericFilter.split(/([,<>=\s]+)/);
+  }
+
+  if (filter.length !== 3) {
+    throw new Error('Invalid numeric filter');
+  }
+
+  // Validate fields (select fields from)
   fields = fields ? fields.split(',') : ['*'];
   const validFields = [
     'id',
@@ -46,13 +58,14 @@ const getAllProducts = async (req, res) => {
     orderBy += ['id'];
   }
 
-  // TODO: Deciding to add this or remove it
-  // if the user doesn't specify any sort option, we will add it
-  // else if (typeof orderBy === 'undefined') {
-  //   orderBy = ['id'];
-  // }
-
-  const products = await allProducts(pool2, fields, page, limit, orderBy);
+  const products = await allProducts(
+    pool2,
+    fields,
+    page,
+    limit,
+    orderBy,
+    filter
+  );
   return res.status(200).json({ length: products.length, products });
 };
 

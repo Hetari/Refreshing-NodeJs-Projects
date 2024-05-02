@@ -75,11 +75,19 @@ const allProducts = async (
   fields,
   page = 1,
   pageSize = 10,
-  sortBy = []
+  sortBy = [],
+  filter = ''
 ) => {
   let sql = `SELECT ${fields} FROM products`;
-  const params = [];
 
+  if (filter) {
+    const col = filter[0];
+    const op = filter[1];
+    const val = filter[2];
+    sql += ` WHERE ${col} ${op} ${val}`;
+  }
+
+  const params = [];
   if (sortBy.length > 0) {
     sql = sortingBy(sql, sortBy);
   }
