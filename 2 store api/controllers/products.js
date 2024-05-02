@@ -4,7 +4,23 @@ import { isNumber } from '../functions/index.js';
 const pool2 = await connectToDatabase();
 
 const getAllProductsStatic = async (req, res) => {
-  let { page, pageSize, orderBy } = req.query;
+  let { page, fields, pageSize, orderBy } = req.query;
+
+  fields = fields ? fields.split(',') : ['*'];
+  const validFields = [
+    'id',
+    'name',
+    'company',
+    'price',
+    'featured',
+    'created_at',
+    '*',
+  ];
+  for (const field of fields) {
+    if (!validFields.includes(field)) {
+      throw new Error(`Invalid field: ${field}`);
+    }
+  }
 
   if (!isNumber(page) && typeof page === 'string') {
     page = parseInt(page);
@@ -36,7 +52,7 @@ const getAllProductsStatic = async (req, res) => {
   //   orderBy = ['id'];
   // }
 
-  const products = await allProducts(pool2, page, pageSize, orderBy);
+  const products = await allProducts(pool2, fields, page, pageSize, orderBy);
   return res.status(200).json({ length: products.length, products });
 };
 

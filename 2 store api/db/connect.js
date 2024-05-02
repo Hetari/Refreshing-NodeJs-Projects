@@ -72,11 +72,13 @@ const productSeed = async (connection) => {
 
 const allProducts = async (
   connection,
+  fields,
   page = 1,
   pageSize = 10,
   sortBy = []
 ) => {
-  let sql = `SELECT * FROM products`;
+  let sql = `SELECT ${fields} FROM products`;
+  console.log(fields);
   const params = [];
 
   if (sortBy.length > 0) {
