@@ -4,7 +4,7 @@ import { isNumber } from '../functions/index.js';
 const pool2 = await connectToDatabase();
 
 const getAllProductsStatic = async (req, res) => {
-  let { page, fields, pageSize, orderBy } = req.query;
+  let { page, limit, fields, orderBy } = req.query;
 
   fields = fields ? fields.split(',') : ['*'];
   const validFields = [
@@ -26,8 +26,8 @@ const getAllProductsStatic = async (req, res) => {
     page = parseInt(page);
   }
 
-  if (!isNumber(pageSize) && typeof pageSize === 'string') {
-    pageSize = parseInt(pageSize);
+  if (!isNumber(limit) && typeof limit === 'string') {
+    limit = parseInt(limit);
   }
 
   if (typeof orderBy === 'string') {
@@ -52,7 +52,7 @@ const getAllProductsStatic = async (req, res) => {
   //   orderBy = ['id'];
   // }
 
-  const products = await allProducts(pool2, fields, page, pageSize, orderBy);
+  const products = await allProducts(pool2, fields, page, limit, orderBy);
   return res.status(200).json({ length: products.length, products });
 };
 

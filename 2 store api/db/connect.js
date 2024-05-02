@@ -78,7 +78,6 @@ const allProducts = async (
   sortBy = []
 ) => {
   let sql = `SELECT ${fields} FROM products`;
-  console.log(fields);
   const params = [];
 
   if (sortBy.length > 0) {
