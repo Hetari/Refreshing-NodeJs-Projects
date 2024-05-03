@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 import { connectToDatabase } from './db/connect.js';
 import { errorHandlerMiddleware } from './middleware/error-handler.js';
+import { notFound } from './middleware/not-found.js';
 
 dotenv.config();
 
@@ -18,8 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(helmet());
 
-// error handling
+// custom middlewares
 app.use(errorHandlerMiddleware);
+app.use(notFound);
 
 // start the server
 try {
