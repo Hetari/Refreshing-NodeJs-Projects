@@ -2,7 +2,7 @@ import { CustomErrorHandling } from '../errors/custom-error.js';
 
 const errorHandlerMiddleware = (err, req, res, next) => {
   if (err instanceof CustomErrorHandling) {
-    return res.stats(err.statusCode).json({
+    return res.status(err.statusCode).json({
       message: err.message,
     });
   }

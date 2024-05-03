@@ -13,7 +13,8 @@ const connectToDatabase = async () => {
     debug: false,
   });
 
-  const connection = await pool.getConnection();
+  // test the connection
+  await pool.getConnection();
 
   if (pool) return pool;
   else throw new Error('Database connection failed');
