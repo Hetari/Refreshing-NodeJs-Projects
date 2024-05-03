@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 
 import { connectToDatabase } from './db/connect.js';
+import { errorHandlerMiddleware } from './middleware/error-handler.js';
 
 dotenv.config();
 
@@ -16,6 +17,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(helmet());
+
+// error handling
+app.use(errorHandlerMiddleware);
 
 // start the server
 try {
