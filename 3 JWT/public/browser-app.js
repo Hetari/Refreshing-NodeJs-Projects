@@ -29,7 +29,6 @@ formDOM.addEventListener('submit', async (e) => {
     tokenDOM.textContent = 'token present'
     tokenDOM.classList.add('text-success')
   } catch (error) {
-    console.log('Nah error: ', error);
     formAlertDOM.style.display = 'block'
     formAlertDOM.textContent = error.response.data.msg
     localStorage.removeItem('token')

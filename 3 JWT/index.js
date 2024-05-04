@@ -29,7 +29,7 @@ app.use(notFound);
 
 // start the server
 try {
-  const pool = connectToDatabase();
+  // const pool = connectToDatabase();
   app.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
   });

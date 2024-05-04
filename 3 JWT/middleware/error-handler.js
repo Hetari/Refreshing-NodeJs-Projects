@@ -1,4 +1,5 @@
 import { CustomErrorHandling } from '../errors/custom-error.js';
+import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
 const errorHandlerMiddleware = (err, req, res, next) => {
   if (err instanceof CustomErrorHandling) {
@@ -6,7 +7,9 @@ const errorHandlerMiddleware = (err, req, res, next) => {
       msg: err.message,
     });
   }
-  return res.status(500).send('Something went wrong try again later');
+  return res
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
+    .send(ReasonPhrases.INTERNAL_SERVER_ERROR);
 };
 
 export { errorHandlerMiddleware };

@@ -1,11 +1,11 @@
 import jsonwebtoken from 'jsonwebtoken';
-import { CustomErrorHandling as CustomAPIError } from '../errors/custom-error.js';
+import { unauthenticatedError } from '../errors/index.js';
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer'))
-    throw new CustomAPIError('No token has provide', 401);
+    throw new unauthenticatedError('No token has provide');
 
   const token = authHeader.split(' ')[1];
 
@@ -16,7 +16,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = { id, username };
     next();
   } catch (error) {
-    throw new CustomAPIError('Not authorized to access this route', 401);
+    throw new unauthenticatedError('Not authorized to access this route');
   }
 };
 

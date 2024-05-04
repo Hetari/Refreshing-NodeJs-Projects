@@ -1,15 +1,14 @@
 import jsonwebtoken, { decode } from 'jsonwebtoken';
-import { CustomErrorHandling as CustomAPIError } from '../errors/custom-error.js';
-import { StatusCodes } from 'http-status-codes';
+import { BadRequest } from '../errors/index.js';
 
 const login = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password)
-    throw new CustomAPIError('Provide a user name or password', 400);
+    throw new BadRequest('Provide a user name or password');
 
   const id = Math.floor(Math.random() * 99);
-  console.log(id);
+
   const token = jsonwebtoken.sign({ id, username }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
