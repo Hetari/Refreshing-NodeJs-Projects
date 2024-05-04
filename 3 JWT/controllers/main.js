@@ -18,24 +18,14 @@ const login = async (req, res) => {
 };
 
 const dashboard = async (req, res) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer'))
-    throw new CustomAPIError('No token has provide', 401);
-
-  const token = authHeader.split(' ')[1];
+  const user = req.user;
 
   // verify the token
-  try {
-    const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
+  const num = Math.floor(Math.random() * 100);
 
-    const num = Math.floor(Math.random() * 100);
-    return res
-      .status(200)
-      .json({ msg: `Hello ${decoded.username}`, secret: num });
-  } catch (error) {
-    throw new CustomAPIError('Not authorized to access this route', 401);
-  }
+  return res
+    .status(200)
+    .json({ msg: `Hello ${user.username} | ${user.id}`, secret: num });
 };
 
 export { login, dashboard };
