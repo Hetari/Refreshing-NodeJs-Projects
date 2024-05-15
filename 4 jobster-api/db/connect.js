@@ -1,5 +1,7 @@
 import mysql from 'mysql2/promise.js';
+import dotenv from 'dotenv';
 
+dotenv.config();
 // Creates a database if it does not already exist.
 const createDatabase = async (pool, dbName) => {
   const connection = await pool.getConnection();
@@ -57,4 +59,6 @@ const connectToDatabase = async () => {
   return pool;
 };
 
-export default connectToDatabase;
+const pool = await connectToDatabase();
+
+export default pool;

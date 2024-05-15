@@ -1,3 +1,4 @@
+import { StatusCodes } from 'http-status-codes';
 import mysql from 'mysql2/promise.js';
 
 const createUserTable = async (pool) => {
@@ -9,19 +10,18 @@ const createUserTable = async (pool) => {
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
 
-    CONSTRAINT chk_name_length CHECK (CHAR_LENGTH(name) BETWEEN 3 AND 50),
-
-    CONSTRAINT chk_email_format CHECK (email REGEXP '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'),
-
+    CONSTRAINT chk_name_length CHECK (CHAR_LENGTH(name) BETWEEN 3 AND 50),    
     CONSTRAINT chk_password_length CHECK (CHAR_LENGTH(password) >= 6)
   );`;
+  // CONSTRAINT chk_email_format CHECK (email REGEXP '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'),
 
   await pool.query(sql);
   return true;
 };
 
-const createUser = async (pool, user) => {
+const createUser = async (res, pool, user) => {
   if (!user || Object.keys(user).length === 0) {
     throw new Error('User object is empty');
   }
@@ -34,10 +34,16 @@ const createUser = async (pool, user) => {
   try {
     const row = await pool.execute(sql, [user.name, user.email, user.password]);
   } catch (err) {
-    console.log(err);
+    if (err.errno === 1062 || err.sqlMessage.startsWith('Duplicate entry')) {
+      return res
+        .status(StatusCodes.CONFLICT)
+        .json({ message: 'Email is already registered' });
+    } else {
+      //   throw err;
+    }
   }
-  console.log(row[0]);
-  return row[0].effectedRows > 0;
+  // console.log(row);
+  // return row[0].effectedRows > 0;
 };
 
 export { createUserTable, createUser };

@@ -1,21 +1,21 @@
 const getAllJobs = async (req, res) => {
-  res.send('get all jobs');
+  return res.json({ message: 'get all jobs' });
 };
 
 const getJob = async (req, res) => {
-  res.send(`get job with id: ${req.params.id}`);
+  return res.json({ message: `get job with id: ${req.params.id}` });
 };
 
 const createJob = async (req, res) => {
-  res.send('create a new job');
+  return res.json({ message: 'create a new job' });
 };
 
 const updateJob = async (req, res) => {
-  res.send('update job');
+  return res.json({ message: 'update job' });
 };
 
 const deleteJob = async (req, res) => {
-  res.send('delete job');
+  return res.json({ message: 'delete job' });
 };
 
 export { getAllJobs, getJob, createJob, updateJob, deleteJob };

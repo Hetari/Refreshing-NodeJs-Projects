@@ -10,7 +10,7 @@ const notFoundMiddleware = (req, res) => {
   // Set the response status code to 404 (Not Found)
   res.status(StatusCodes.NOT_FOUND);
   // Send a message with the response indicating that the route does not exist
-  return res.send('Route does not exist');
+  return res.json({ message: 'Route does not exist' }); // or
 };
 
 export default notFoundMiddleware;

@@ -3,8 +3,8 @@ import 'express-async-errors';
 import express from 'express';
 
 // DB
-import connectToDatabase from './db/connect.js';
-// import { createUserTable } from './db/index.js';
+import pool from './db/connect.js';
+import { createUserTable } from './db/index.js';
 
 // extra security packages
 import helmet from 'helmet';
@@ -37,8 +37,7 @@ const start = async () => {
   const host = process.env.APP_HOST || 'localhost';
 
   try {
-    const pool = await connectToDatabase();
-
+    createUserTable(pool);
     app.listen(port, host, () => {
       console.log(`Server is running on http://${host}:${port}`);
     });
