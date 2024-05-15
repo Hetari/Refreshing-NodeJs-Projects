@@ -33,17 +33,20 @@ const createUser = async (res, pool, user) => {
   const sql = `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`;
   try {
     const row = await pool.execute(sql, [user.name, user.email, user.password]);
+    console.log(row[0].affectedRows);
   } catch (err) {
     if (err.errno === 1062 || err.sqlMessage.startsWith('Duplicate entry')) {
       return res
         .status(StatusCodes.CONFLICT)
         .json({ message: 'Email is already registered' });
     } else {
-      //   throw err;
+      throw err;
     }
   }
-  // console.log(row);
-  // return row[0].effectedRows > 0;
+
+  return res
+    .status(StatusCodes.CREATED)
+    .json({ message: ReasonPhrases.CREATED });
 };
 
 export { createUserTable, createUser };

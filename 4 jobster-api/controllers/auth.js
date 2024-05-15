@@ -1,6 +1,6 @@
 import pool from '../db/connect.js';
 import { createUser } from '../db/index.js';
-import { StatusCodes, ReasonPhrases } from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -35,10 +35,6 @@ const register = async (req, res) => {
   }
 
   await createUser(res, pool, { name, email, password });
-
-  return res
-    .status(StatusCodes.CREATED)
-    .json({ message: ReasonPhrases.CREATED });
 };
 
 const login = async (req, res) => {
