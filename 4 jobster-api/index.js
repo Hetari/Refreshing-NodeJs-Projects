@@ -2,6 +2,9 @@ import dotenv from 'dotenv';
 import 'express-async-errors';
 import express from 'express';
 
+// DB connect
+import connectToDatabase from './db/connect.js';
+
 // extra security packages
 import helmet from 'helmet';
 
@@ -12,10 +15,6 @@ import notFoundMiddleware from './middleware/not-found.js';
 // routes
 import authRouter from './routes/auth.js';
 import jobsRouter from './routes/jobs.js';
-
-// ! import { connectToDatabase } from './db/connect.js';
-// ! import { errorHandlerMiddleware } from './middleware/error-handler.js';
-// ! import { notFound } from './middleware/not-found.js';
 
 dotenv.config();
 const app = express();
@@ -37,7 +36,7 @@ const start = async () => {
   const host = process.env.APP_HOST || 'localhost';
 
   try {
-    // const pool = connectToDatabase();
+    const pool = connectToDatabase();
     app.listen(port, host, () => {
       console.log(`Server is running on http://${host}:${port}`);
     });
