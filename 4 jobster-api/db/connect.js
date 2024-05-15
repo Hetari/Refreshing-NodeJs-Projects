@@ -54,6 +54,7 @@ const connectToDatabase = async () => {
   }
 
   console.log(`Connected to the '${process.env.DB_NAME}' database`);
+  return pool;
 };
 
 export default connectToDatabase;

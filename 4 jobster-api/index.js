@@ -2,8 +2,9 @@ import dotenv from 'dotenv';
 import 'express-async-errors';
 import express from 'express';
 
-// DB connect
+// DB
 import connectToDatabase from './db/connect.js';
+// import { createUserTable } from './db/index.js';
 
 // extra security packages
 import helmet from 'helmet';
@@ -36,7 +37,8 @@ const start = async () => {
   const host = process.env.APP_HOST || 'localhost';
 
   try {
-    const pool = connectToDatabase();
+    const pool = await connectToDatabase();
+
     app.listen(port, host, () => {
       console.log(`Server is running on http://${host}:${port}`);
     });
