@@ -1,8 +1,10 @@
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import pool from '../db/connect.js';
-import { createUser } from '../db/index.js';
+import { createUser, getUser } from '../db/index.js';
 import { BadRequestError } from '../errors/index.js';
-import jsonwebtoken, { decode } from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+
+import generateToken from '../functions/index.js';
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -35,14 +37,7 @@ const register = async (req, res) => {
   }
 
   // create jwt
-  const token = jsonwebtoken.sign(
-    { userId, username: name },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_LIFETIME,
-      header: { typ: 'JWT', alg: 'HS256' },
-    }
-  );
+  const token = generateToken(userId, name);
 
   return res.status(StatusCodes.CREATED).json({
     user: { username: name },
@@ -52,7 +47,37 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  return res.json({ message: 'login' });
+  const { email, password } = req.body;
+
+  // Validate user input
+  if (
+    !email ||
+    !password ||
+    typeof email !== 'string' ||
+    typeof password !== 'string'
+  ) {
+    throw new BadRequestError('Email and password are required');
+  }
+
+  // Check if the user exists in the database
+  const user = await getUser(pool, email);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Compare the provided password with the stored hashed password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: 'Invalid password' });
+  }
+
+  // Generate a token
+  const token = generateToken(user.id, user.name);
+
+  // Send the response
+  return res.json({ message: 'Login successful', token });
 };
 
 export { register, login };

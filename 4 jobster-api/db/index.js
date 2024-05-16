@@ -53,4 +53,23 @@ const createUser = async (pool, user) => {
   }
 };
 
-export { createUserTable, createUser };
+const getUser = async (pool, email) => {
+  try {
+    const sql = 'SELECT * FROM users WHERE email = ?';
+
+    // Execute the SQL query with the email parameter
+    const [rows] = await pool.execute(sql, [email]);
+
+    // Check if user is found
+    if (rows.length === 0) {
+      return null; // User not found
+    }
+
+    // Return the first user found
+    return rows[0];
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export { createUserTable, createUser, getUser };
