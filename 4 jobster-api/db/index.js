@@ -1,4 +1,3 @@
-import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 import { BadRequestError, ConflictEntryError } from '../errors/index.js';
 import bcrypt from 'bcrypt';
 
@@ -38,13 +37,16 @@ const createUser = async (pool, user) => {
   const encryptedPassword = await bcrypt.hash(user.password, salt);
 
   try {
-    const row = await pool.execute(sql, [
+    const addUser = await pool.execute(sql, [
       user.name,
       user.email,
       encryptedPassword,
     ]);
+
+    return addUser[0].insertId;
   } catch (err) {
     if (err.errno === 1062 || err.sqlMessage.startsWith('Duplicate entry')) {
+      throw new ConflictEntryError('Email already exists');
     } else {
       throw new Error(err);
     }

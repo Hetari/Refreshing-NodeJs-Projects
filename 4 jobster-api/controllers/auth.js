@@ -1,7 +1,8 @@
-import { StatusCodes } from 'http-status-codes';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import pool from '../db/connect.js';
 import { createUser } from '../db/index.js';
 import { BadRequestError } from '../errors/index.js';
+import jsonwebtoken, { decode } from 'jsonwebtoken';
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -27,11 +28,23 @@ const register = async (req, res) => {
     throw new BadRequestError('Password must be at least 8 characters long');
   }
 
-  await createUser(pool, { name, email, password });
+  const userId = await createUser(pool, { name, email, password });
+
+  if (!userId) {
+    throw new Error('Failed to create user');
+  }
+  // create jwt
+  const token = jsonwebtoken.sign(
+    { userId, username: name },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '30d',
+    }
+  );
 
   return res
     .status(StatusCodes.CREATED)
-    .json({ message: ReasonPhrases.CREATED });
+    .json({ token, message: ReasonPhrases.CREATED });
 };
 
 const login = async (req, res) => {
