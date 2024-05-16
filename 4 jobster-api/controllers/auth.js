@@ -33,18 +33,22 @@ const register = async (req, res) => {
   if (!userId) {
     throw new Error('Failed to create user');
   }
+
   // create jwt
   const token = jsonwebtoken.sign(
     { userId, username: name },
     process.env.JWT_SECRET,
     {
-      expiresIn: '30d',
+      expiresIn: process.env.JWT_LIFETIME,
+      header: { typ: 'JWT', alg: 'HS256' },
     }
   );
 
-  return res
-    .status(StatusCodes.CREATED)
-    .json({ token, message: ReasonPhrases.CREATED });
+  return res.status(StatusCodes.CREATED).json({
+    user: { username: name },
+    token,
+    message: ReasonPhrases.CREATED,
+  });
 };
 
 const login = async (req, res) => {
