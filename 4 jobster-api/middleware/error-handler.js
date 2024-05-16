@@ -14,7 +14,7 @@ import { CustomAPIError } from '../errors/index.js';
 const errorHandlerMiddleware = (err, req, res, next) => {
   // Check if the error is an instance of CustomAPIError
   if (err instanceof CustomAPIError) {
-    return res.status(err.statusCode).json({ msg: err.message });
+    return res.status(err.statusCode).json({ message: err.message });
   }
   // If the error is of any other type, send a JSON response with the error object and internal server error status code
   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ err });

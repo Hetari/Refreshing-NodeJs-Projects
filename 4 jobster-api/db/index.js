@@ -1,5 +1,6 @@
-import { StatusCodes } from 'http-status-codes';
-import mysql from 'mysql2/promise.js';
+import { StatusCodes, ReasonPhrases } from 'http-status-codes';
+import { BadRequestError, ConflictEntryError } from '../errors/index.js';
+import bcrypt from 'bcrypt';
 
 const createUserTable = async (pool) => {
   // TODO: check if the user name is less than 3 or > 50 and catch that error.
@@ -21,32 +22,33 @@ const createUserTable = async (pool) => {
   return true;
 };
 
-const createUser = async (res, pool, user) => {
+const createUser = async (pool, user) => {
   if (!user || Object.keys(user).length === 0) {
-    throw new Error('User object is empty');
+    throw new BadRequestError('User object is empty');
   }
 
   if (!user.name || !user.email || !user.password) {
-    throw new Error('User object is missing required fields');
+    throw new BadRequestError('User object is missing required fields');
   }
 
   const sql = `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`;
+
+  // Generate a salt for hashing passwords with cost factor 10, it is basically random bytes
+  const salt = await bcrypt.genSalt(10);
+  const encryptedPassword = await bcrypt.hash(user.password, salt);
+
   try {
-    const row = await pool.execute(sql, [user.name, user.email, user.password]);
-    console.log(row[0].affectedRows);
+    const row = await pool.execute(sql, [
+      user.name,
+      user.email,
+      encryptedPassword,
+    ]);
   } catch (err) {
     if (err.errno === 1062 || err.sqlMessage.startsWith('Duplicate entry')) {
-      return res
-        .status(StatusCodes.CONFLICT)
-        .json({ message: 'Email is already registered' });
     } else {
-      throw err;
+      throw new Error(err);
     }
   }
-
-  return res
-    .status(StatusCodes.CREATED)
-    .json({ message: ReasonPhrases.CREATED });
 };
 
 export { createUserTable, createUser };
