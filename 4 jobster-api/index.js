@@ -17,6 +17,9 @@ import notFoundMiddleware from './middleware/not-found.js';
 import authRouter from './routes/auth.js';
 import jobsRouter from './routes/jobs.js';
 
+// middleware
+import authMiddleware from './middleware/authentication.js';
+
 dotenv.config();
 const app = express();
 
@@ -26,7 +29,7 @@ app.use(helmet());
 
 // routes
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/jobs', jobsRouter);
+app.use('/api/v1/jobs', authMiddleware, jobsRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

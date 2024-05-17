@@ -53,12 +53,23 @@ const createUser = async (pool, user) => {
   }
 };
 
-const getUser = async (pool, email) => {
+const getUser = async (pool, prop) => {
   try {
-    const sql = 'SELECT * FROM users WHERE email = ?';
+    let sql = 'SELECT * FROM users WHERE ';
 
-    // Execute the SQL query with the email parameter
-    const [rows] = await pool.execute(sql, [email]);
+    if (
+      (typeof prop === 'string' && !isNaN(prop)) ||
+      typeof prop === 'number'
+    ) {
+      sql += `id = ?`;
+    } else if (typeof prop === 'string' && isNaN(prop)) {
+      sql += `email = ?`;
+    } else {
+      throw new Error('Invalid sql prop');
+    }
+
+    // Execute the SQL query with the prop parameter
+    const [rows] = await pool.execute(sql, [prop]);
 
     // Check if user is found
     if (rows.length === 0) {

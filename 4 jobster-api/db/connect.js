@@ -51,7 +51,7 @@ const connectToDatabase = async () => {
       await pool.getConnection();
     } else {
       // Throw error if it's not a 'database does not exist' error
-      throw err;
+      throw new Error(err);
     }
   }
 
