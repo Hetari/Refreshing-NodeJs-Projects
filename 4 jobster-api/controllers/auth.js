@@ -1,7 +1,7 @@
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import pool from '../db/connect.js';
 import { createUser, getUser } from '../db/index.js';
-import { BadRequestError } from '../errors/index.js';
+import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
 import bcrypt from 'bcrypt';
 
 import generateToken from '../functions/index.js';
@@ -50,27 +50,26 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   // Validate user input
-  if (
-    !email ||
-    !password ||
-    typeof email !== 'string' ||
-    typeof password !== 'string'
-  ) {
+  if (!email || !password) {
     throw new BadRequestError('Email and password are required');
+  }
+
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    throw new BadRequestError('Email and password must be strings');
   }
 
   // Check if the user exists in the database
   const user = await getUser(pool, email);
 
   if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+    throw new UnauthenticatedError('Invalid email or password');
   }
 
   // Compare the provided password with the stored hashed password
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    return res.status(401).json({ message: 'Invalid password' });
+    throw new UnauthenticatedError('Invalid email or password');
   }
 
   // Generate a token
