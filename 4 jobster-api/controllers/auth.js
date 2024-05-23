@@ -59,7 +59,7 @@ const login = async (req, res) => {
   }
 
   // Check if the user exists in the database
-  const user = await getUser(pool, email);
+  const user = await getUser(pool, email, ['id', 'name', 'email', 'password']);
 
   if (!user) {
     throw new UnauthenticatedError('Invalid email or password');

@@ -18,9 +18,8 @@ const auth = async (req, res, next) => {
     // attach the user to job routes
     const user = await getUser(pool, payload.userId);
 
-    // console.log('user: ', user);
+    req.user = user;
 
-    req.user = { userId: payload.userId, name: payload.username };
     next();
   } catch (error) {
     throw new UnauthenticatedError('Authentication invalid');
