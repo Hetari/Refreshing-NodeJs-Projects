@@ -53,9 +53,9 @@ const createUser = async (pool, user) => {
   }
 };
 
-const getUser = async (pool, prop) => {
+const getUser = async (pool, prop, select = ['id', 'name', 'email']) => {
   try {
-    let sql = 'SELECT * FROM users WHERE ';
+    let sql = `SELECT ${select.join(', ')} FROM users WHERE `;
 
     if (
       (typeof prop === 'string' && !isNaN(prop)) ||
