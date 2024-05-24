@@ -16,7 +16,8 @@ const auth = async (req, res, next) => {
     const payload = jsonwebtoken.verify(token, process.env.JWT_SECRET);
 
     // attach the user to job routes
-    const user = await getUser(pool, payload.userId);
+    // TODO: remove the name prop
+    const user = await getUser(pool, payload.userId, ['id', 'name']);
 
     req.user = user;
 

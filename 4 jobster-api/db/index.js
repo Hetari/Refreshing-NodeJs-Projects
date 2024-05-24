@@ -1,4 +1,8 @@
-import { BadRequestError, ConflictEntryError } from '../errors/index.js';
+import {
+  BadRequestError,
+  ConflictEntryError,
+  UnauthenticatedError,
+} from '../errors/index.js';
 import bcrypt from 'bcrypt';
 
 const createUserTable = async (pool) => {
@@ -21,7 +25,7 @@ const createUserTable = async (pool) => {
   return true;
 };
 
-const createUser = async (pool, user) => {
+const insertUser = async (pool, user) => {
   if (!user || Object.keys(user).length === 0) {
     throw new BadRequestError('User object is empty');
   }
@@ -44,11 +48,14 @@ const createUser = async (pool, user) => {
     ]);
 
     return addUser[0].insertId;
-  } catch (err) {
-    if (err.errno === 1062 || err.sqlMessage.startsWith('Duplicate entry')) {
+  } catch (error) {
+    if (
+      error.errno === 1062 ||
+      error.sqlMessage.startsWith('Duplicate entry')
+    ) {
       throw new ConflictEntryError('Email already exists');
     } else {
-      throw new Error(err);
+      throw new Error(error);
     }
   }
 };
@@ -83,4 +90,55 @@ const getUser = async (pool, prop, select = ['id', 'name', 'email']) => {
   }
 };
 
-export { createUserTable, createUser, getUser };
+// Jobs
+const createJobTable = async (pool) => {
+  const sql = `CREATE TABLE IF NOT EXISTS jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    position VARCHAR(100) NOT NULL,
+    status ENUM('interview', 'declined', 'pending') NOT NULL DEFAULT 'interview',
+    created_by INT NOT NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (created_by) REFERENCES users(id)
+  )`;
+  // CONSTRAINT chk_name_length CHECK (CHAR_LENGTH(name) BETWEEN 3 AND 50), CONSTRAINT chk_name_length CHECK (CHAR_LENGTH(name) BETWEEN 3 AND 100),
+
+  await pool.query(sql);
+  return true;
+};
+
+const insertJob = async (pool, job) => {
+  // companyName, companyPosition, companyStatus;
+  if (!job || Object.keys(job).length === 0) {
+    throw new BadRequestError('Job object is empty');
+  }
+
+  if (!job.user) {
+    throw new UnauthenticatedError('There is no authentication user!');
+  }
+
+  if (!job.company || !job.position || !job.status) {
+    throw new BadRequestError('Job object is missing required fields');
+  }
+
+  const sql = `INSERT INTO jobs (name, position, status, created_by) VALUES (?, ?, ?, ?)`;
+
+  try {
+    const addJob = await pool.execute(sql, [
+      job.company,
+      job.position,
+      job.status,
+      job.user.id,
+    ]);
+
+    // or insertId:
+    return addJob[0].affectedRows;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export { createUserTable, createJobTable, insertUser, getUser, insertJob };

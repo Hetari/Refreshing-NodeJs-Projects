@@ -4,7 +4,7 @@ import express from 'express';
 
 // DB
 import pool from './db/connect.js';
-import { createUserTable } from './db/index.js';
+import { createUserTable, createJobTable } from './db/index.js';
 
 // extra security packages
 import helmet from 'helmet';
@@ -40,7 +40,8 @@ const start = async () => {
   const host = process.env.APP_HOST || 'localhost';
 
   try {
-    createUserTable(pool);
+    await createUserTable(pool);
+    await createJobTable(pool);
     app.listen(port, host, () => {
       console.log(`Server is running on http://${host}:${port}`);
     });

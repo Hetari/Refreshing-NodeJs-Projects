@@ -1,6 +1,6 @@
 import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import pool from '../db/connect.js';
-import { createUser, getUser } from '../db/index.js';
+import { insertUser, getUser } from '../db/index.js';
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
 import bcrypt from 'bcrypt';
 
@@ -30,10 +30,10 @@ const register = async (req, res) => {
     throw new BadRequestError('Password must be at least 8 characters long');
   }
 
-  const userId = await createUser(pool, { name, email, password });
+  const userId = await insertUser(pool, { name, email, password });
 
   if (!userId) {
-    throw new Error('Failed to create user');
+    throw new BadRequestError('Failed to create user');
   }
 
   // create jwt
