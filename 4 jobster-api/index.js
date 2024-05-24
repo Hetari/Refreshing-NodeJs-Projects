@@ -8,6 +8,17 @@ import { createUserTable, createJobTable } from './db/index.js';
 
 // extra security packages
 import helmet from 'helmet';
+import cors from 'cors';
+import xss from 'xss-clean';
+import { rateLimit } from 'express-rate-limit';
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Redis, Memcached, etc. See below.
+});
 
 // error handler
 import errorHandlerMiddleware from './middleware/error-handler.js';
@@ -24,8 +35,12 @@ dotenv.config();
 const app = express();
 
 // middlewares
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(helmet());
+app.use(cors());
+app.use(xss());
+app.use(limiter);
 
 // routes
 app.use('/api/v1/auth', authRouter);
