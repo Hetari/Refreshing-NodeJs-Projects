@@ -177,6 +177,39 @@ const insertJob = async (pool, job) => {
   }
 };
 
+const updateJopRecord = async (pool, updatedId, newData) => {
+  const validColumns = ['name', 'position', 'status', 'created_by'];
+
+  let sql = 'UPDATE jobs SET ';
+  let queryParams = [];
+  let updates = [];
+
+  // Iterate over the newData object and construct the SQL query
+  for (const [key, value] of Object.entries(newData)) {
+    if (validColumns.includes(key) && value !== undefined) {
+      updates.push(`${key} = ?`);
+      queryParams.push(value);
+    }
+  }
+
+  if (updates.length === 0) {
+    throw new BadRequestError('No valid fields provided for update');
+  }
+
+  sql += updates.join(', ') + ' WHERE id = ?';
+  queryParams.push(updatedId);
+
+  try {
+    const [result] = await pool.query(sql, queryParams);
+    if (result.affectedRows === 0) {
+      throw new Error('Job not found or no changes made');
+    }
+    return result;
+  } catch (error) {
+    throw new Error(`Error updating job: ${error.message}`);
+  }
+};
+
 export {
   createUserTable,
   createJobTable,
@@ -184,4 +217,5 @@ export {
   getUser,
   selectAllJobs,
   insertJob,
+  updateJopRecord,
 };

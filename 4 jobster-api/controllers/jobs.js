@@ -1,6 +1,6 @@
 import { BadRequestError } from '../errors/index.js';
 import pool from '../db/connect.js';
-import { insertJob, selectAllJobs } from '../db/index.js';
+import { insertJob, selectAllJobs, updateJopRecord } from '../db/index.js';
 
 const getAllJobs = async (req, res) => {
   const {
@@ -98,7 +98,23 @@ const createJob = async (req, res) => {
 };
 
 const updateJob = async (req, res) => {
-  return res.json({ message: 'update job' });
+  const { id } = req.params;
+  const { company, position, status, created_by } = req.body;
+
+  if (!id) {
+    throw new BadRequestError('Job ID is required');
+  }
+
+  if (!company && !position && !status && !created_by) {
+    throw new BadRequestError('At least one field must be provided to update');
+  }
+
+  const newData = { name: company, position, status, created_by };
+
+  console.log(id);
+  await updateJopRecord(pool, id, newData);
+
+  return res.json({ message: 'Job updated successfully' });
 };
 
 const deleteJob = async (req, res) => {
