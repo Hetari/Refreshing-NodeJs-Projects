@@ -110,13 +110,39 @@ const createJobTable = async (pool) => {
   return true;
 };
 
-const selectAllJobs = async (pool, select = ['*']) => {
+const selectAllJobs = async (pool, criteria = {}, select = ['*']) => {
+  // criteria is like: { status: 'interview', created_by: 1 }
+  const validColumns = [
+    'id',
+    'name',
+    'position',
+    'status',
+    'created_at',
+    'updated_at',
+    'created_by',
+  ];
+
   let sql = `SELECT ${select.join(', ')} FROM jobs`;
+  let queryParams = [];
+  let conditions = [];
+
+  // Iterate over the criteria object and construct the SQL query
+  for (const [key, value] of Object.entries(criteria)) {
+    if (validColumns.includes(key) && value !== undefined) {
+      conditions.push(`${key} = ?`);
+      queryParams.push(value);
+    }
+  }
+
+  if (conditions.length > 0) {
+    sql += ' WHERE ' + conditions.join(' AND ');
+  }
+
   try {
-    const [rows] = await pool.query(sql);
+    const [rows] = await pool.query(sql, queryParams);
     return rows;
   } catch (error) {
-    throw new BadRequestError(error);
+    throw new BadRequestError(error.message);
   }
 };
 

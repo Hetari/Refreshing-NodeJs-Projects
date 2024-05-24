@@ -3,8 +3,42 @@ import pool from '../db/connect.js';
 import { insertJob, selectAllJobs } from '../db/index.js';
 
 const getAllJobs = async (req, res) => {
-  const jobs = await selectAllJobs(pool);
-  return res.json({ jobs });
+  const {
+    id,
+    company,
+    position,
+    status,
+    created_by,
+    created_at,
+    updated_at,
+    select,
+  } = req.query;
+
+  let criteria = {};
+  let columns = select ? select.split(',') : ['*'];
+
+  // Build criteria object
+  // sourcery skip: use-braces
+  if (id) criteria.id = id;
+  if (company) criteria.name = company;
+  if (position) criteria.position = position;
+  if (status) criteria.status = status;
+  if (created_by) criteria.created_by = created_by;
+  if (created_at) criteria.created_at = created_at;
+  if (updated_at) criteria.updated_at = updated_at;
+
+  try {
+    // Implement pagination
+    let jobs = await selectAllJobs(pool, criteria, columns);
+
+    if (jobs.length === 0) {
+      return res.json({ message: 'No jobs found' });
+    }
+
+    return res.json({ jobs });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 };
 
 const getJob = async (req, res) => {
