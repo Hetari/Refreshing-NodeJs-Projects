@@ -42,7 +42,9 @@ const getAllJobs = async (req, res) => {
 };
 
 const getJob = async (req, res) => {
-  return res.json({ message: `get job with id: ${req.params.id}` });
+  const { id } = req.params;
+  req.query.id = id;
+  getAllJobs(req, res);
 };
 
 const createJob = async (req, res) => {
