@@ -1,9 +1,10 @@
 import { BadRequestError } from '../errors/index.js';
 import pool from '../db/connect.js';
-import { insertJob } from '../db/index.js';
+import { insertJob, selectAllJobs } from '../db/index.js';
 
 const getAllJobs = async (req, res) => {
-  return res.json({ message: 'get all jobs' });
+  const jobs = await selectAllJobs(pool);
+  return res.json({ jobs });
 };
 
 const getJob = async (req, res) => {

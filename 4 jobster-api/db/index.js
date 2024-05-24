@@ -110,6 +110,16 @@ const createJobTable = async (pool) => {
   return true;
 };
 
+const selectAllJobs = async (pool, select = ['*']) => {
+  let sql = `SELECT ${select.join(', ')} FROM jobs`;
+  try {
+    const [rows] = await pool.query(sql);
+    return rows;
+  } catch (error) {
+    throw new BadRequestError(error);
+  }
+};
+
 const insertJob = async (pool, job) => {
   // companyName, companyPosition, companyStatus;
   if (!job || Object.keys(job).length === 0) {
@@ -141,4 +151,11 @@ const insertJob = async (pool, job) => {
   }
 };
 
-export { createUserTable, createJobTable, insertUser, getUser, insertJob };
+export {
+  createUserTable,
+  createJobTable,
+  insertUser,
+  getUser,
+  selectAllJobs,
+  insertJob,
+};
