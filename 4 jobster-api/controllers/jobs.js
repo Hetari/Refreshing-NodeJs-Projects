@@ -1,4 +1,4 @@
-import { BadRequestError } from '../errors/index.js';
+import { BadRequestError, NotFoundError } from '../errors/index.js';
 import pool from '../db/connect.js';
 import { insertJob, selectAllJobs, updateJopRecord } from '../db/index.js';
 
@@ -27,18 +27,18 @@ const getAllJobs = async (req, res) => {
   if (created_at) criteria.created_at = created_at;
   if (updated_at) criteria.updated_at = updated_at;
 
-  try {
-    // Implement pagination
-    let jobs = await selectAllJobs(pool, criteria, columns);
+  // try {
+  // Implement pagination
+  let jobs = await selectAllJobs(pool, criteria, columns);
 
-    if (jobs.length === 0) {
-      return res.json({ message: 'No jobs found' });
-    }
-
-    return res.json({ jobs });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+  if (jobs.length === 0) {
+    return res.json({ message: 'No jobs found' });
   }
+
+  return res.json({ jobs });
+  // } catch (error) {
+  //   return res.status(500).json({ error: error.message });
+  // }
 };
 
 const getJob = async (req, res) => {
@@ -118,7 +118,30 @@ const updateJob = async (req, res) => {
 };
 
 const deleteJob = async (req, res) => {
-  return res.json({ message: 'delete job' });
+  const { id } = req.params;
+
+  if (!id) {
+    throw new BadRequestError('Job ID is required');
+  }
+
+  // get that job
+  const [job] = await pool.query(`SELECT * FROM jobs WHERE id = ?`, [id]);
+
+  if (job.length !== 1) {
+    throw new NotFoundError('Job not found');
+  }
+
+  const createdBy = req.user;
+  if (job[0].created_by !== createdBy.id) {
+    throw new BadRequestError('You are not allowed to delete this job');
+  }
+
+  const sql = 'DELETE FROM jobs WHERE id = ?';
+  const [result] = await pool.query(sql, [id]);
+  if (result.affectedRows === 0) {
+    throw new NotFoundError('Job not found');
+  }
+  return res.json({ message: 'Job deleted successfully' });
 };
 
 export { getAllJobs, getJob, createJob, updateJob, deleteJob };
