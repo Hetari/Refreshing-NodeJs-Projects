@@ -1,25 +1,79 @@
-import { sum } from '../main';
+// import { sum } from '../main.j';
+const sum = require('../main.js');
 
-test('adds 1 + 2 to = 3', () => {
-  expect(sum(1, 2).toBe(3));
-});
+describe('sum', () => {
+  test('should return the sum of two positive numbers', () => {
+    // Arrange
+    const a = 5;
+    const b = 3;
 
-test('adds -1 + -2 to = -3', () => {
-  expect(sum(-1, -2).toBe(-3));
-});
+    // Act
+    const result = sum(a, b);
 
-test('adds 1 + -2 to = -1', () => {
-  expect(sum(1, -2).toBe(-1));
-});
+    // Assert
+    expect(result).toBe(8);
+  });
 
-test('adds 1 + 2 to and throw error', () => {
-  expect(sum('1', '2').toThrow());
-});
+  test('should return the sum of two negative numbers', () => {
+    // Arrange
+    const a = -5;
+    const b = -3;
 
-test('adds 1 + 2 to and throw error', () => {
-  expect(sum(1, '2').toThrow());
-});
+    // Act
+    const result = sum(a, b);
 
-test('adds 1 + 2 to and throw error', () => {
-  expect(sum('1', 2).toThrow());
+    // Assert
+    expect(result).toBe(-8);
+  });
+
+  test('should return the sum of zero and a number', () => {
+    // Arrange
+    const a = 0;
+    const b = 5;
+
+    // Act
+    const result = sum(a, b);
+
+    // Assert
+    expect(result).toBe(5);
+  });
+
+  test('should return the sum of two floating point numbers', () => {
+    // Arrange
+    const a = 1.5;
+    const b = 2.3;
+
+    // Act
+    const result = sum(a, b);
+
+    // Assert
+    expect(result).toBeCloseTo(3.8);
+  });
+
+  test('should throw an error when the first argument is a string', () => {
+    // Arrange
+    const a = '5';
+    const b = 3;
+
+    // Act and Assert
+    expect(() => sum(a, b)).toThrow("Args should not be 'string'");
+  });
+
+  test('should throw an error when the second argument is a string', () => {
+    // Arrange
+    const a = 5;
+    const b = '3';
+
+    // Act and Assert
+    expect(() => sum(a, b)).toThrow("Args should not be 'string'");
+  });
+
+  test('should throw an error when both arguments are strings', () => {
+    // Arrange
+    const a = '5';
+    const b = '3';
+
+    // Act and Assert
+    expect(() => sum(a, b)).toThrow("Args should not be 'string'");
+  });
 });
