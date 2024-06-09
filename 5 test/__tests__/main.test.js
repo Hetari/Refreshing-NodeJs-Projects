@@ -1,5 +1,4 @@
-// import { sum } from '../main.j';
-const sum = require('../main.js');
+const { sum, fetchData } = require('../main.js');
 
 describe('sum', () => {
   test('should return the sum of two positive numbers', () => {
@@ -75,5 +74,20 @@ describe('sum', () => {
 
     // Act and Assert
     expect(() => sum(a, b)).toThrow("Args should not be 'string'");
+  });
+});
+
+describe('API', () => {
+  test('should log the data after 2 sec', (done) => {
+    const callback = (data) => {
+      try {
+        expect(data).toBe('Done! here i your data');
+        done();
+      } catch (error) {
+        done(error);
+      }
+    };
+
+    fetchData(callback);
   });
 });

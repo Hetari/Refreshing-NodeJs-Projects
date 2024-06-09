@@ -5,4 +5,13 @@ const sum = (a, b) => {
   return a + b;
 };
 
-module.exports = sum;
+const fetchData = (callback) => {
+  setTimeout(() => {
+    callback('Done! here i your data');
+  }, 2000);
+};
+
+module.exports = {
+  sum,
+  fetchData,
+};
